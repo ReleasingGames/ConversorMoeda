@@ -8,16 +8,16 @@ import {
   Animated,
 } from "react-native";
 import axios from "axios";
-import { Picker } from "@react-native-picker/picker"; // Import correto para o Picker
+import { Picker } from "@react-native-picker/picker";
 
 const App = () => {
   const [amount, setAmount] = useState("");
   const [convertedAmount, setConvertedAmount] = useState(null);
-  const [exchangeRate, setExchangeRate] = useState(null); // Para armazenar o valor da taxa de câmbio
+  const [exchangeRate, setExchangeRate] = useState(null);
   const [fromCurrency, setFromCurrency] = useState("USD");
-  const [toCurrency, setToCurrency] = useState("BRL"); // Mudando para BRL como padrão
-  const scaleAnim = useRef(new Animated.Value(1)).current; // Animação de escala para o botão
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Animação de fade para o resultado
+  const [toCurrency, setToCurrency] = useState("BRL");
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const currencyOptions = ["USD", "EUR", "BRL", "GBP", "JPY", "CAD"];
 
@@ -43,16 +43,18 @@ const App = () => {
         `https://api.exchangerate-api.com/v4/latest/${fromCurrency}`,
         {
           headers: {
-            apikey: "512593ad814f47777797256e", // Substitua com sua chave de API
+            apikey: "512593ad814f47777797256e",
           },
         }
       );
       const rate = response.data.rates[toCurrency];
-      const result = (amount * rate).toFixed(2);
-      setConvertedAmount(result);
-      setExchangeRate(rate); // Armazenar a taxa de câmbio
 
-      // Animação de fade do resultado
+      // Utilizando BigInt para números muito grandes
+      const bigAmount = BigInt(amount);
+      const result = (bigAmount * BigInt(rate * 100)) / BigInt(100); // Mantendo duas casas decimais
+      setConvertedAmount(result.toString());
+      setExchangeRate(rate);
+
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 500,
